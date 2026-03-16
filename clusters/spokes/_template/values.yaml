@@ -1,0 +1,68 @@
+# Injected by ApplicationSet at deploy time
+clusterName: ""
+environment: ""
+cloud: ""
+region: ""
+
+cilium:
+  enabled: true
+  kubeProxyReplacement: true
+  k8sServiceHost: ""      # injected per cluster
+  k8sServicePort: "6443"
+  hubble:
+    enabled: true
+    relay:
+      enabled: true
+    ui:
+      enabled: true
+  ipam:
+    mode: kubernetes
+  # This is what makes Cilium replace kube-proxy entirely
+  # Without this you have both running — wasteful and confusing
+  operator:
+    replicas: 1
+
+externalSecrets:
+  enabled: true
+  # Watches for SecretStore and ExternalSecret CRDs
+  # Pulls real secrets from AWS SM / GCP SM at runtime
+  # Nothing sensitive ever touches Git
+  installCRDs: true
+  webhook:
+    enabled: true
+
+kyverno:
+  enabled: true
+  # Admission controller mode — blocks non-compliant resources
+  admissionController:
+    replicas: 2
+  backgroundController:
+    enabled: true
+  # We add our policies separately in /policies directory
+  # Kyverno itself is just the engine
+
+prometheus:
+  enabled: true
+  # Thanos sidecar — this is what connects to your hub Thanos Query
+  # You built this in production already — same pattern
+  prometheus:
+    prometheusSpec:
+      replicas: 1
+      retention: 2h        # short — Thanos handles long term
+      retentionSize: "8GB"
+      # Thanos sidecar config
+      thanos:
+        image: quay.io/thanos/thanos:v0.34.1
+        objectStorageConfig:
+          existingSecret:
+            name: thanos-objstore-secret
+            key: objstore.yml
+      # Only scrape pods/services with these annotations
+      serviceMonitorSelectorNilUsesHelmValues: false
+      podMonitorSelectorNilUsesHelmValues: false
+  # Disable alertmanager per spoke — alerts route through hub Thanos Ruler
+  alertmanager:
+    enabled: false
+  # Disable Grafana per spoke — single Grafana on hub
+  grafana:
+    enabled: false
