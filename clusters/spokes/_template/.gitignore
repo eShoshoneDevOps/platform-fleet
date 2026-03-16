@@ -1,0 +1,4 @@
+# Helm downloads dependencies here at render time
+# ArgoCD runs helm dep update automatically
+# Never commit downloaded charts — commit Chart.lock instead
+charts/
