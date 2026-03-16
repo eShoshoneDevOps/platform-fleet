@@ -1,0 +1,57 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: cluster-apps-matrix
+  namespace: argocd
+spec:
+  # Matrix generator = cross product of clusters x apps
+  # Every app in the list gets deployed to every cluster
+  generators:
+  - matrix:
+      generators:
+      - clusters:
+          selector:
+            matchLabels:
+              platform.io/managed: "true"
+      - list:
+          elements:
+          - app: cilium
+            wave: "1"
+          - app: external-secrets
+            wave: "2"
+          - app: kyverno
+            wave: "3"
+          - app: prometheus
+            wave: "4"
+
+  goTemplate: true
+  goTemplateOptions: ["missingkey=error"]
+
+  template:
+    metadata:
+      name: "{{.name}}-{{.app}}"
+      namespace: argocd
+      annotations:
+        argocd.argoproj.io/sync-wave: "{{.wave}}"
+    spec:
+      project: platform
+      source:
+        repoURL: https://github.com/eShoshoneDevOps/platform-fleet
+        targetRevision: main
+        path: "gitops/apps/{{.app}}"
+        helm:
+          parameters:
+          - name: clusterName
+            value: "{{.name}}"
+          - name: environment
+            value: "{{index .metadata.labels \"platform.io/environment\"}}"
+      destination:
+        server: "{{.server}}"
+        namespace: "{{.app}}-system"
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        syncOptions:
+        - CreateNamespace=true
+        - ServerSideApply=true

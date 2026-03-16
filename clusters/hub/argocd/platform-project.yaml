@@ -1,0 +1,42 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: platform
+  namespace: argocd
+  # Finalizer prevents accidental deletion
+  finalizers:
+  - resources-finalizer.argocd.argoproj.io
+spec:
+  description: Platform engineering — managed fleet
+
+  # Only pull from our org
+  sourceRepos:
+  - https://github.com/eShoshoneDevOps/*
+  - https://charts.cilium.io
+  - https://charts.bitnami.com/bitnami
+  - https://kyverno.github.io/kyverno
+  - https://external-secrets.github.io/external-secrets
+
+  # Can deploy to any cluster registered in ArgoCD
+  destinations:
+  - namespace: "*"
+    server: "*"
+
+  # Cluster-scoped resources the platform is allowed to manage
+  clusterResourceWhitelist:
+  - group: "*"
+    kind: Namespace
+  - group: "*"
+    kind: ClusterRole
+  - group: "*"
+    kind: ClusterRoleBinding
+  - group: cilium.io
+    kind: "*"
+  - group: kyverno.io
+    kind: "*"
+  - group: apiextensions.k8s.io
+    kind: CustomResourceDefinition
+
+  # Deny orphaned resources — everything must be in git
+  orphanedResources:
+    warn: true

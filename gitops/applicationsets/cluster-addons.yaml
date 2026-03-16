@@ -1,0 +1,69 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: cluster-addons
+  namespace: argocd
+spec:
+  # The cluster generator pulls every cluster registered in ArgoCD
+  # Label selector ensures we only target managed spoke clusters
+  # not the hub itself
+  generators:
+  - clusters:
+      selector:
+        matchLabels:
+          platform.io/managed: "true"
+          platform.io/role: spoke
+
+  # goTemplate gives us cleaner templating than the default
+  goTemplate: true
+  goTemplateOptions: ["missingkey=error"]
+
+  template:
+    metadata:
+      # One Application per cluster, named by cluster + addon
+      name: "{{.name}}-cluster-addons"
+      namespace: argocd
+      annotations:
+        # Tells ArgoCD to self-heal if someone manually changes something
+        argocd.argoproj.io/sync-wave: "1"
+    spec:
+      project: platform
+
+      source:
+        repoURL: https://github.com/eShoshoneDevOps/platform-fleet
+        targetRevision: main
+        # Every spoke gets the same base — overrides come from values files
+        path: clusters/spokes/_template
+        helm:
+          # Inject cluster-specific values automatically
+          valueFiles:
+          - values.yaml
+          - "../../{{.metadata.labels.cloud}}/{{.metadata.labels.environment}}/values.yaml"
+          parameters:
+          - name: clusterName
+            value: "{{.name}}"
+          - name: environment
+            value: "{{index .metadata.labels \"platform.io/environment\"}}"
+          - name: cloud
+            value: "{{index .metadata.labels \"platform.io/cloud\"}}"
+          - name: region
+            value: "{{index .metadata.labels \"platform.io/region\"}}"
+
+      destination:
+        # Deploys TO the spoke cluster, not the hub
+        server: "{{.server}}"
+        namespace: platform-system
+
+      syncPolicy:
+        automated:
+          prune: true      # removes resources deleted from git
+          selfHeal: true   # reverts manual changes automatically
+        syncOptions:
+        - CreateNamespace=true
+        - ServerSideApply=true
+        retry:
+          limit: 5
+          backoff:
+            duration: 30s
+            factor: 2
+            maxDuration: 5m
