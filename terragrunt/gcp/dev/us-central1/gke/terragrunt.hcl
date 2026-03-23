@@ -6,6 +6,15 @@ include "root" {
 terraform {
   source = "git::https://github.com/eShoshoneDevOps/platform-fleet//terraform/modules/gcp/gke?ref=main"
 }
+dependency "vpc" {
+    config_path = "../vpc"
+
+    mock_outputs = {
+        network_name = "mock-network"
+        subnetwork_name = "mock-subnet"
+    }
+    mock_outputs_allowed_terraform_commands = ["validate", "plan"]
+}
 
 inputs = {
     # ID - who and where is this cluster
@@ -18,7 +27,7 @@ inputs = {
     cluster_name = "${include.root.locals.cloud}-${include.root.locals.environment}-${include.root.locals.region}"
 
     # K8s version
-    kubernetes_version = "1.35"
+    # kubernetes_version = "1.35"
     release_channel = "REGULAR"
 
     # Node pool
@@ -33,8 +42,8 @@ inputs = {
     ]
 
     # Networking - will come from VPC dependency
-    network_name = "platform-dev"
-    subnetwork_name = "platform-dev-us-central1"
+    network_name = dependency.vpc.outputs.network_name
+    subnetwork_name = dependency.vpc.outputs.subnetwork_name
 
     # IAM - Workload Identity for gcp
     enable_workload_identity = true
