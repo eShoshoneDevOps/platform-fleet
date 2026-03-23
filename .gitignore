@@ -1,1 +1,76 @@
+# ─────────────────────────────────────────
+# Session notes — never commit
+# ─────────────────────────────────────────
 session-notes.md
+
+# ─────────────────────────────────────────
+# Terraform
+# ─────────────────────────────────────────
+**/.terraform/
+**/.terraform.lock.hcl
+*.tfstate
+*.tfstate.backup
+*.tfstate.*.backup
+*.tfvars
+*.tfvars.json
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+crash.log
+crash.*.log
+
+# ─────────────────────────────────────────
+# Terragrunt
+# ─────────────────────────────────────────
+**/.terragrunt-cache/
+*.hcl.json
+
+# ─────────────────────────────────────────
+# Helm
+# ─────────────────────────────────────────
+**/charts/*.tgz
+**/Chart.lock
+
+# ─────────────────────────────────────────
+# Kubernetes — never commit real secrets
+# ─────────────────────────────────────────
+*-secret.yaml
+*-secrets.yaml
+secrets.yaml
+kubeconfig
+*.kubeconfig
+.kube/
+
+# ─────────────────────────────────────────
+# ArgoCD
+# ─────────────────────────────────────────
+**/argocd-initial-admin-secret*
+
+# ─────────────────────────────────────────
+# Cloud credentials — never ever
+# ─────────────────────────────────────────
+*.pem
+*.key
+*.p12
+*.pfx
+.aws/
+.gcp/
+*.json
+!**/testdata/**/*.json
+service-account*.json
+*-sa-key.json
+credentials.json
+
+# ─────────────────────────────────────────
+# OS and editor junk
+# ─────────────────────────────────────────
+.DS_Store
+.DS_Store?
+._*
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
