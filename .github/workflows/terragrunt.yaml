@@ -52,9 +52,11 @@ jobs:
 
       - name: Setup Terragrunt
         run: |
-          curl -sL https://github.com/gruntwork-io/terragrunt/releases/download/v0.67.0/terragrunt_linux_amd64 -o terragrunt
+          TERRAGRUNT_VERSION=$(curl -s https://api.github.com/repos/gruntwork-io/terragrunt/releases/latest | jq -r .tag_name)
+          curl -sL "https://github.com/gruntwork-io/terragrunt/releases/download/${TERRAGRUNT_VERSION}/terragrunt_linux_amd64" -o terragrunt
           chmod +x terragrunt
           sudo mv terragrunt /usr/local/bin/
+          terragrunt --version
 
       - name: Terragrunt Plan
         if: github.event_name == 'pull_request' || github.event.inputs.action == 'plan'
