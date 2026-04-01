@@ -10,5 +10,6 @@ locals {
     team        = "platform"
     managed_by  = "terragrunt"
     repo        = "platform-fleet"   
+    
   }
 }
