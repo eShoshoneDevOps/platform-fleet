@@ -9,7 +9,6 @@ locals {
     environment = "dev"
     team        = "platform"
     managed_by  = "terragrunt"
-    repo        = "platform-fleet"
-    
+    repo        = "platform-fleet"   
   }
 }

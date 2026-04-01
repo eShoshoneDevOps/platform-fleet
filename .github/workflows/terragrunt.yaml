@@ -59,12 +59,12 @@ jobs:
 
       - name: Terragrunt Plan
         if: github.event_name == 'pull_request' || github.event.inputs.action == 'plan'
-        run: terragrunt run-all plan --working-dir terragrunt/gcp/dev --non-interactive
+        run: terragrunt run --all plan --working-dir terragrunt/gcp/dev --non-interactive
         
       - name: Terragrunt Apply
         if: github.event_name == 'push' || github.event.inputs.action == 'apply'
-        run: terragrunt run-all apply --working-dir terragrunt/gcp/dev --non-interactive
+        run: terragrunt run --all apply --working-dir terragrunt/gcp/dev --non-interactive
 
       - name: Terragrunt Destroy
         if: github.event.inputs.action == 'destroy'
-        run: terragrunt run-all destroy --working-dir terragrunt/gcp/dev --non-interactive
+        run: terragrunt run --all destroy --working-dir terragrunt/gcp/dev --non-interactive
