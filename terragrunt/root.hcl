@@ -27,7 +27,6 @@ generate "provider" {
     contents = <<EOF
 provider "google" {
     project = var.project_id
-    region = var.region
 }
 EOF
 }
