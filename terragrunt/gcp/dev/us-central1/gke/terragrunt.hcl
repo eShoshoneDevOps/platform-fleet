@@ -22,7 +22,7 @@ dependency "vpc" {
 }
 
 terraform {
-  source = "git::https://github.com/eShoshoneDevOps/platform-modules.git//modules/gcp/gke?ref=v0.1.0"
+  source = "git::https://github.com/eShoshoneDevOps/platform-modules.git//modules/gcp/gke?ref=v0.1.1"
 }
 
 inputs = {
