@@ -49,4 +49,6 @@ inputs = {
   ]
 
   labels = local.env.common_labels
+
+  deletion_protection = false
 }

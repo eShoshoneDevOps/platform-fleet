@@ -9,7 +9,7 @@ include "root" {
 }
 
 terraform {
-  source = "git::https://github.com/eShoshoneDevOps/platform-modules.git//modules/gcp/iam/workload-identity?ref=v0.2.1"
+  source = "git::https://github.com/eShoshoneDevOps/platform-modules.git//modules/gcp/iam/workload-identity?ref=v0.2.2"
 }
 
 inputs = {
