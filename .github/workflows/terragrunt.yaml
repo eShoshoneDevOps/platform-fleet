@@ -31,40 +31,32 @@ permissions:
   pull-requests: write
 
 jobs:
-  terragrunt:
-    name: Terragrunt ${{ github.event.inputs.action || (github.event_name == 'push' && 'apply') || 'plan' }}
+  plan:
+    name: Terragrunt Plan
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Authenticate to GCP
-        uses: google-github-actions/auth@v2
-        with:
-          workload_identity_provider: projects/105849575222/locations/global/workloadIdentityPools/github-pool/providers/github-provider
-          service_account: terraform-sa@shoshone-devops-platform.iam.gserviceaccount.com
-
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v3
-        with:
-          terraform_wrapper: false
-
-      - name: Setup Terragrunt
-        run: |
-          wget -q "https://github.com/gruntwork-io/terragrunt/releases/download/v1.0.0/terragrunt_linux_amd64" -O /tmp/terragrunt
-          chmod +x /tmp/terragrunt
-          sudo mv /tmp/terragrunt /usr/local/bin/terragrunt
-          terragrunt --version
-
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup-terragrunt
       - name: Terragrunt Plan
-        if: github.event_name == 'pull_request' || github.event.inputs.action == 'plan'
         run: terragrunt run --all plan --working-dir terragrunt/gcp/dev --non-interactive
-        
+
+  apply:
+    name: Terragrunt Apply
+    runs-on: ubuntu-latest
+    needs: plan
+    if: github.event_name == 'workflow_dispatch' && github.event.inputs.action == 'apply'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup-terragrunt
       - name: Terragrunt Apply
-        if: github.event_name == 'push' || github.event.inputs.action == 'apply'
         run: terragrunt run --all apply --working-dir terragrunt/gcp/dev --non-interactive
 
+  destroy:
+    name: Terragrunt Destroy
+    runs-on: ubuntu-latest
+    if: github.event_name == 'workflow_dispatch' && github.event.inputs.action == 'destroy'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup-terragrunt
       - name: Terragrunt Destroy
-        if: github.event.inputs.action == 'destroy'
         run: terragrunt run --all destroy --working-dir terragrunt/gcp/dev --non-interactive
