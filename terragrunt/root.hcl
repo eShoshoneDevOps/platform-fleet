@@ -2,7 +2,7 @@ locals {
     path_parts = split("/", path_relative_to_include())
     cloud = local.path_parts[0]
     environment = local.path_parts[1]
-    region = local.path_parts[2]
+    region = length(local.path_parts) > 2 ? local.path_parts[2] : ""
 }
 # ─────────────────────────────────────────
 # THING 1: Where does Terraform state live?
