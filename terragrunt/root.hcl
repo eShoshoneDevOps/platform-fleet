@@ -12,6 +12,7 @@ remote_state {
     config = {
         bucket = "shoshone-tfstate"
         prefix = path_relative_to_include()
+        project = "shoshone-devops-platform"
     }
     generate = {
         path = "backend.tf"
