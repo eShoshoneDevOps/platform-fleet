@@ -7,6 +7,10 @@ region: local
 cilium:
   k8sServiceHost: "192.168.122.10"
 
+kyverno:
+  admissionController:
+    replicas: 1
+
 # Dev cluster — minimal footprint
 prometheus:
   prometheus:
