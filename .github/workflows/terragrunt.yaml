@@ -1,4 +1,4 @@
-name: Terragrunt
+name: GCP Dev — Terragrunt
 
 on:
   push:
@@ -30,9 +30,13 @@ permissions:
   id-token: write
   pull-requests: write
 
+concurrency:
+  group: terragrunt-gcp-dev
+  cancel-in-progress: false
+
 jobs:
   plan:
-    name: Terragrunt Plan
+    name: GCP Dev — Plan
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -41,7 +45,7 @@ jobs:
         run: terragrunt run --all plan --working-dir terragrunt/gcp/dev --non-interactive
 
   apply:
-    name: Terragrunt Apply
+    name: GCP Dev — Apply
     runs-on: ubuntu-latest
     needs: plan
     if: github.event_name == 'workflow_dispatch' && github.event.inputs.action == 'apply'
@@ -52,7 +56,7 @@ jobs:
         run: terragrunt run --all apply --working-dir terragrunt/gcp/dev --non-interactive
 
   destroy:
-    name: Terragrunt Destroy
+    name: GCP Dev — Destroy
     runs-on: ubuntu-latest
     if: github.event_name == 'workflow_dispatch' && github.event.inputs.action == 'destroy'
     steps:
