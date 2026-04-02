@@ -38,7 +38,7 @@ spec:
           # Inject cluster-specific values automatically
           valueFiles:
           - values.yaml
-          - "../../{{.metadata.labels.cloud}}/{{.metadata.labels.environment}}/values.yaml"
+          - "../{{.name}}/values.yaml"
           parameters:
           - name: clusterName
             value: "{{.name}}"

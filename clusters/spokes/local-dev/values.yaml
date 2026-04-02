@@ -1,0 +1,16 @@
+# Local Talos dev spoke — override only what differs from _template defaults
+clusterName: local-dev
+environment: dev
+cloud: local
+region: local
+
+cilium:
+  k8sServiceHost: "192.168.122.10"
+
+# Dev cluster — minimal footprint
+prometheus:
+  prometheus:
+    prometheusSpec:
+      replicas: 1
+      retention: 1h
+      retentionSize: "4GB"
