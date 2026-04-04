@@ -5,10 +5,11 @@ cloud: gcp
 region: us-central1
 
 # GCP specific
-gcpProjectID: "your-gcp-project-id"   # replace with real value
+gcpProjectID: "shoshone-devops-platform" 
 
 cilium:
-  k8sServiceHost: "10.96.0.1"         # replace with real API server IP
+  enabled: false
+  k8sServiceHost: "136.114.8.131"
 
 # Dev cluster — smaller footprint
 prometheus:
@@ -17,3 +18,7 @@ prometheus:
       replicas: 1
       retention: 1h
       retentionSize: "4GB"
+
+kyverno:
+  admissionController:
+    replicas: 1
