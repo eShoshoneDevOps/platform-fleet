@@ -38,6 +38,7 @@ jobs:
   plan:
     name: GCP Dev — Plan
     runs-on: ubuntu-latest
+    if: github.event.inputs.action != 'destroy'
     steps:
       - uses: actions/checkout@v4
       - uses: ./.github/actions/setup-terragrunt
