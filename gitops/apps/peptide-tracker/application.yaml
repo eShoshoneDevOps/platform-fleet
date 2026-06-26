@@ -1,0 +1,21 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: peptide-tracker
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/eShoshoneDevOps/peptide-tracker
+    targetRevision: master
+    path: chart
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: peptide-tracker
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true
