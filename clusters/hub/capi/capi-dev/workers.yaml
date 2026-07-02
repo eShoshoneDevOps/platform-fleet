@@ -1,0 +1,129 @@
+apiVersion: infrastructure.cluster.x-k8s.io/v1alpha1
+kind: KubevirtMachineTemplate
+metadata:
+  name: capi-dev-md-0
+  namespace: capi-dev
+spec:
+  template:
+    spec:
+      virtualMachineBootstrapCheck:
+        checkStrategy: none
+      virtualMachineTemplate:
+        metadata:
+          namespace: capi-dev
+          labels:
+            app: capi-dev-md-0
+        spec:
+          dataVolumeTemplates:
+            - metadata:
+                name: boot-volume
+              spec:
+                pvc:
+                  volumeMode: Filesystem
+                  accessModes:
+                    - ReadWriteOnce
+                  resources:
+                    requests:
+                      storage: 20Gi
+                  storageClassName: local-path
+                source:
+                  pvc:
+                    name: talos-golden-1-11-1
+                    namespace: capi-dev
+          runStrategy: Always
+          template:
+            metadata:
+              labels:
+                app: capi-dev-md-0
+            spec:
+              affinity:
+                podAntiAffinity:
+                  preferredDuringSchedulingIgnoredDuringExecution:
+                    - weight: 100
+                      podAffinityTerm:
+                        labelSelector:
+                          matchExpressions:
+                            - key: app
+                              operator: In
+                              values:
+                                - capi-dev-md-0
+                        topologyKey: kubernetes.io/hostname
+              domain:
+                cpu:
+                  cores: 2
+                resources:
+                  requests:
+                    memory: 2Gi
+                devices:
+                  disks:
+                    - disk:
+                        bus: virtio
+                      name: dv-volume
+              evictionStrategy: External
+              volumes:
+                - dataVolume:
+                    name: boot-volume
+                  name: dv-volume
+---
+apiVersion: bootstrap.cluster.x-k8s.io/v1alpha3
+kind: TalosConfigTemplate
+metadata:
+  name: capi-dev-md-0
+  namespace: capi-dev
+spec:
+  template:
+    spec:
+      generateType: join
+      talosVersion: v1.11
+---
+apiVersion: cluster.x-k8s.io/v1beta1
+kind: MachineDeployment
+metadata:
+  name: capi-dev-md-0
+  namespace: capi-dev
+  labels:
+    cluster.x-k8s.io/cluster-name: capi-dev
+spec:
+  clusterName: capi-dev
+  replicas: 2
+  selector:
+    matchLabels:
+      cluster.x-k8s.io/cluster-name: capi-dev
+  template:
+    metadata:
+      labels:
+        cluster.x-k8s.io/cluster-name: capi-dev
+        node-role.kubernetes.io/worker: ''
+    spec:
+      clusterName: capi-dev
+      version: v1.34.0
+      bootstrap:
+        configRef:
+          apiVersion: bootstrap.cluster.x-k8s.io/v1alpha3
+          kind: TalosConfigTemplate
+          name: capi-dev-md-0
+      infrastructureRef:
+        name: capi-dev-md-0
+        namespace: capi-dev
+        apiVersion: infrastructure.cluster.x-k8s.io/v1alpha1
+        kind: KubevirtMachineTemplate
+---
+apiVersion: cluster.x-k8s.io/v1beta1
+kind: MachineHealthCheck
+metadata:
+  name: capi-dev-md-0
+  namespace: capi-dev
+spec:
+  clusterName: capi-dev
+  maxUnhealthy: 100%
+  nodeStartupTimeout: 10m
+  selector:
+    matchLabels:
+      cluster.x-k8s.io/deployment-name: capi-dev-md-0
+  unhealthyConditions:
+    - type: Ready
+      status: Unknown
+      timeout: 300s
+    - type: Ready
+      status: "False"
+      timeout: 300s

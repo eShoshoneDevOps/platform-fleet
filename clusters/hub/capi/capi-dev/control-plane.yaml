@@ -1,0 +1,67 @@
+apiVersion: infrastructure.cluster.x-k8s.io/v1alpha1
+kind: KubevirtMachineTemplate
+metadata:
+  name: capi-dev-control-plane
+  namespace: capi-dev
+spec:
+  template:
+    spec:
+      virtualMachineBootstrapCheck:
+        checkStrategy: none
+      virtualMachineTemplate:
+        metadata:
+          namespace: capi-dev
+        spec:
+          dataVolumeTemplates:
+            - metadata:
+                name: boot-volume
+              spec:
+                pvc:
+                  volumeMode: Filesystem
+                  accessModes:
+                    - ReadWriteOnce
+                  resources:
+                    requests:
+                      storage: 20Gi
+                  storageClassName: local-path
+                source:
+                  pvc:
+                    name: talos-golden-1-11-1
+                    namespace: capi-dev
+          runStrategy: Always
+          template:
+            spec:
+              domain:
+                cpu:
+                  cores: 2
+                resources:
+                  requests:
+                    memory: 3Gi
+                devices:
+                  disks:
+                    - disk:
+                        bus: virtio
+                      name: dv-volume
+              evictionStrategy: External
+              volumes:
+                - dataVolume:
+                    name: boot-volume
+                  name: dv-volume
+---
+kind: TalosControlPlane
+apiVersion: controlplane.cluster.x-k8s.io/v1alpha3
+metadata:
+  name: capi-dev-controlplane
+  namespace: capi-dev
+spec:
+  version: v1.34.0
+  replicas: 3
+  infrastructureTemplate:
+    kind: KubevirtMachineTemplate
+    apiVersion: infrastructure.cluster.x-k8s.io/v1alpha1
+    name: capi-dev-control-plane
+    namespace: capi-dev
+  controlPlaneConfig:
+    controlplane:
+      generateType: controlplane
+      talosVersion: v1.11

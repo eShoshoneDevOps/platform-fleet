@@ -1,0 +1,21 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: capi-dev-cluster
+  namespace: argocd
+spec:
+  project: platform
+  source:
+    repoURL: https://github.com/eShoshoneDevOps/platform-fleet
+    targetRevision: main
+    path: clusters/hub/capi/capi-dev
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: capi-dev
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true
