@@ -12,6 +12,7 @@ spec:
   # Only pull from our org
   sourceRepos:
   - https://github.com/eShoshoneDevOps/*
+  - ghcr.io/eshoshonedevops/charts/*
   - https://charts.cilium.io
   - https://charts.bitnami.com/bitnami
   - https://kyverno.github.io/kyverno
