@@ -21,6 +21,10 @@ Managed by eShoshoneDevOps.
 2. If it is not in an ApplicationSet it does not exist
 3. No `kubectl apply` by hand — ever
 
+## Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for branch/PR/tag conventions.
+
 ## Status
 
 - [ ] Hub cluster bootstrap

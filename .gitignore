@@ -8,6 +8,11 @@ capi-to-talos-notes.md
 k8s-in-action-handoff.md
 
 # ─────────────────────────────────────────
+# Sprint/ticket board (local planning only)
+# ─────────────────────────────────────────
+tickets/
+
+# ─────────────────────────────────────────
 # Terraform
 # ─────────────────────────────────────────
 **/.terraform/
